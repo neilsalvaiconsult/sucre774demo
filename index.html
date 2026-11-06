@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
   <title>Portal Edificio Sucre 774</title>
@@ -168,7 +167,7 @@
     .btn-save:hover { background: var(--btn-hover); }
     .modal-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* ESTILOS PARA LA TARJETA DEL RECIBO (Similitud con la imagen adjunta) */
+    /* ESTILOS PARA LA TARJETA DEL RECIBO */
     .recibo-preview-container {
       margin: 15px 0;
       display: flex;
@@ -557,8 +556,43 @@
 </div>
 
 <script>
+  // ⚠️ REEMPLAZA ESTA URL CON LA URL DE TU APLICACIÓN WEB DE APPS SCRIPT (/exec)
+  var API_URL = "https://script.google.com/macros/s/TU_SCRIPT_ID_AQUÍ/exec";
+
   var tokenSesion = "";
   var egresosData = [];
+
+  // Función genérica para conectar con la API REST de Apps Script
+  function llamarAPI(action, data, callbackSuccess, callbackError) {
+    var payload = {
+      action: action,
+      token: tokenSesion || "",
+      data: data || {}
+    };
+
+    fetch(API_URL, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(res) {
+      if (res && res.sesionExpirada) {
+        mostrarLogin(res.error || "Tu sesión expiró.");
+        return;
+      }
+      if (callbackSuccess) callbackSuccess(res);
+    })
+    .catch(function(err) {
+      if (callbackError) callbackError(err);
+      else console.error("Error en API:", err);
+    });
+  }
 
   function toggleTheme() {
     var htmlElement = document.documentElement;
@@ -631,31 +665,28 @@
     btn.disabled = true;
     btn.innerText = "Verificando...";
 
-    google.script.run
-      .withSuccessHandler(function(res) {
-        btn.disabled = false;
-        btn.innerText = "Ingresar";
-        if (!res || !res.ok) {
-          mostrarLoginError((res && res.error) || "No se pudo iniciar sesión.");
-          document.getElementById("inputPin").value = "";
-          return;
-        }
-        guardarSesion(res.token, res.email);
+    llamarAPI("iniciarSesion", { correo: correo, pin: pin }, function(res) {
+      btn.disabled = false;
+      btn.innerText = "Ingresar";
+      if (!res || !res.ok) {
+        mostrarLoginError((res && res.error) || "No se pudo iniciar sesión.");
         document.getElementById("inputPin").value = "";
-        mostrarApp(res.token, res.esAdmin, res.email);
-      })
-      .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerText = "Ingresar";
-        mostrarLoginError("Error al conectar con el servidor: " + err);
-      })
-      .iniciarSesion(correo, pin);
+        return;
+      }
+      guardarSesion(res.token, res.email);
+      document.getElementById("inputPin").value = "";
+      mostrarApp(res.token, res.esAdmin, res.email);
+    }, function(err) {
+      btn.disabled = false;
+      btn.innerText = "Ingresar";
+      mostrarLoginError("Error al conectar con el servidor: " + err);
+    });
   }
 
   function cerrarSesion() {
     var t = tokenSesion;
     mostrarLogin("");
-    if (t) google.script.run.cerrarSesion(t);
+    if (t) llamarAPI("cerrarSesion", {}, function(){}, function(){});
   }
 
   document.getElementById("inputPin").addEventListener("keydown", function(e) {
@@ -668,16 +699,14 @@
   (function() {
     var s = leerSesion();
     if (!s.token) return;
-    google.script.run
-      .withSuccessHandler(function(res) {
-        if (res && res.ok) {
-          mostrarApp(s.token, res.esAdmin, res.email);
-        } else {
-          borrarSesionLocal();
-        }
-      })
-      .withFailureHandler(function() { borrarSesionLocal(); })
-      .verificarSesion(s.token);
+    tokenSesion = s.token;
+    llamarAPI("verificarSesion", {}, function(res) {
+      if (res && res.ok) {
+        mostrarApp(s.token, res.esAdmin, res.email);
+      } else {
+        borrarSesionLocal();
+      }
+    }, function() { borrarSesionLocal(); });
   })();
 
   var NOMBRES_MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -758,50 +787,47 @@
     btn.innerText = "Guardando...";
     mostrarMsgModal("msgIngreso", "", "");
 
-    google.script.run
-      .withSuccessHandler(function(res) {
-        btn.disabled = false;
-        btn.innerText = "Registrar Pago";
-        if (sesionExpiradaEnModal(res, "modalIngreso")) return;
+    llamarAPI("registrarIngreso", datos, function(res) {
+      btn.disabled = false;
+      btn.innerText = "Registrar Pago";
+      if (sesionExpiradaEnModal(res, "modalIngreso")) return;
 
-        if (res.ok) {
-          mostrarMsgModal("msgIngreso", "ok", res.mensaje);
-          document.getElementById("ingMonto").value = "";
-          refrescarConsultaSiHayDepto();
+      if (res.ok) {
+        mostrarMsgModal("msgIngreso", "ok", res.mensaje);
+        document.getElementById("ingMonto").value = "";
+        refrescarConsultaSiHayDepto();
 
-          // Mostrar tarjeta del recibo y poblar datos
-          var dRec = res.datosRecibo;
-          document.getElementById("recFmtFecha").innerText = "Magdalena del Mar, " + dRec.fecha;
-          document.getElementById("recFmtPropietario").innerText = dRec.propietario;
-          document.getElementById("recFmtDepto").innerText = dRec.depto;
-          
-          // Formatear mes corto para el recibo (ej: oct-2026)
-          var mesPartes = dRec.mes.split("-");
-          var mesAbrev = mesPartes[0].substring(0, 3) + "-" + mesPartes[1];
-          document.getElementById("recFmtMes").innerText = mesAbrev;
-          
-          var montoFmt = dRec.monto.toFixed(2);
-          document.getElementById("recFmtMonto").innerText = montoFmt;
-          document.getElementById("recFmtTotal").innerText = montoFmt;
+        var dRec = res.datosRecibo;
+        document.getElementById("recFmtFecha").innerText = "Magdalena del Mar, " + dRec.fecha;
+        document.getElementById("recFmtPropietario").innerText = dRec.propietario;
+        document.getElementById("recFmtDepto").innerText = dRec.depto;
+        
+        var mesPartes = dRec.mes.split("-");
+        var mesAbrev = mesPartes[0].substring(0, 3) + "-" + mesPartes[1];
+        document.getElementById("recFmtMes").innerText = mesAbrev;
+        
+        var montoFmt = dRec.monto.toFixed(2);
+        document.getElementById("recFmtMonto").innerText = montoFmt;
+        document.getElementById("recFmtTotal").innerText = montoFmt;
 
-          document.getElementById("contenedorReciboArea").style.display = "block";
-        } else if (res.duplicado) {
-          if (confirm(res.error + "\n\n¿Deseas registrar este pago de todas formas?")) {
-            guardarIngreso(true);
-          }
+        document.getElementById("contenedorReciboArea").style.display = "block";
+      } else if (res.duplicado) {
+        if (confirm(res.error + "\n\n¿Deseas registrar este pago de todas formas?")) {
+          guardarIngreso(true);
         } else {
-          mostrarMsgModal("msgIngreso", "error", res.error || "No se pudo registrar el ingreso.");
+          btn.disabled = false;
+          btn.innerText = "Registrar Pago";
         }
-      })
-      .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerText = "Registrar Pago";
-        mostrarMsgModal("msgIngreso", "error", "Error al conectar con el servidor: " + err);
-      })
-      .registrarIngreso(tokenSesion, datos);
+      } else {
+        mostrarMsgModal("msgIngreso", "error", res.error || "No se pudo registrar el ingreso.");
+      }
+    }, function(err) {
+      btn.disabled = false;
+      btn.innerText = "Registrar Pago";
+      mostrarMsgModal("msgIngreso", "error", "Error al conectar con el servidor: " + err);
+    });
   }
 
-  // Copiar recibo al portapapeles como imagen usando html2canvas
   function copiarReciboAlPortapapeles() {
     var reciboElemento = document.getElementById("reciboPrintNode");
     html2canvas(reciboElemento, { scale: 2, backgroundColor: "#f8f9fa" }).then(function(canvas) {
@@ -811,8 +837,8 @@
             new ClipboardItem({ "image/png": blob })
           ]).then(function() {
             alert("¡Recibo copiado al portapapeles con éxito! Ya puedes pegarlo (Ctrl+V) en el chat de WhatsApp.");
-          }).catch(function(err) {
-            alert("No se pudo copiar automáticamente. Intenta descargarlo o usa un navegador compatible.");
+          }).catch(function() {
+            alert("No se pudo copiar automáticamente.");
           });
         } catch (ex) {
           alert("Tu navegador no permite copiar la imagen directamente al portapapeles.");
@@ -830,21 +856,18 @@
     mostrarMsgModal("msgEgreso", "", "");
     abrirModal("modalEgreso");
 
-    google.script.run
-      .withSuccessHandler(function(res) {
-        if (sesionExpiradaEnModal(res, "modalEgreso")) return;
-        var dl = document.getElementById("listaTiposEgreso");
-        dl.innerHTML = "";
-        if (res && res.ok) {
-          res.tipos.forEach(function(t) {
-            var o = document.createElement("option");
-            o.value = t;
-            dl.appendChild(o);
-          });
-        }
-      })
-      .withFailureHandler(function() {})
-      .obtenerTiposEgreso(tokenSesion);
+    llamarAPI("obtenerTiposEgreso", {}, function(res) {
+      if (sesionExpiradaEnModal(res, "modalEgreso")) return;
+      var dl = document.getElementById("listaTiposEgreso");
+      dl.innerHTML = "";
+      if (res && res.ok) {
+        res.tipos.forEach(function(t) {
+          var o = document.createElement("option");
+          o.value = t;
+          dl.appendChild(o);
+        });
+      }
+    }, function() {});
   }
 
   function guardarEgreso() {
@@ -859,27 +882,24 @@
     btn.innerText = "Guardando...";
     mostrarMsgModal("msgEgreso", "", "");
 
-    google.script.run
-      .withSuccessHandler(function(res) {
-        btn.disabled = false;
-        btn.innerText = "Guardar";
-        if (sesionExpiradaEnModal(res, "modalEgreso")) return;
+    llamarAPI("registrarEgreso", datos, function(res) {
+      btn.disabled = false;
+      btn.innerText = "Guardar";
+      if (sesionExpiradaEnModal(res, "modalEgreso")) return;
 
-        if (res.ok) {
-          mostrarMsgModal("msgEgreso", "ok", res.mensaje);
-          document.getElementById("egrMonto").value = "";
-          document.getElementById("egrDesc").value = "";
-          refrescarConsultaSiHayDepto();
-        } else {
-          mostrarMsgModal("msgEgreso", "error", res.error || "No se pudo registrar el egreso.");
-        }
-      })
-      .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerText = "Guardar";
-        mostrarMsgModal("msgEgreso", "error", "Error al conectar con el servidor: " + err);
-      })
-      .registrarEgreso(tokenSesion, datos);
+      if (res.ok) {
+        mostrarMsgModal("msgEgreso", "ok", res.mensaje);
+        document.getElementById("egrMonto").value = "";
+        document.getElementById("egrDesc").value = "";
+        refrescarConsultaSiHayDepto();
+      } else {
+        mostrarMsgModal("msgEgreso", "error", res.error || "No se pudo registrar el egreso.");
+      }
+    }, function(err) {
+      btn.disabled = false;
+      btn.innerText = "Guardar";
+      mostrarMsgModal("msgEgreso", "error", "Error al conectar con el servidor: " + err);
+    });
   }
 
   function consultarDepto() {
@@ -892,17 +912,18 @@
     document.getElementById("loader").style.display = "block";
     document.getElementById("resultBox").style.display = "none";
 
-    google.script.run
-      .withSuccessHandler(mostrarResultados)
-      .withFailureHandler(mostrarError)
-      .obtenerEstadoDepto(depto, tokenSesion);
+    llamarAPI("obtenerEstadoDepto", { depto: depto }, function(res) {
+      mostrarResultados(res);
+    }, function(err) {
+      mostrarError(err);
+    });
   }
 
   function mostrarResultados(res) {
     document.getElementById("loader").style.display = "none";
 
-    if (res.sesionExpirada) {
-      mostrarLogin(res.error);
+    if (!res || res.sesionExpirada) {
+      mostrarLogin(res ? res.error : "Sesión expirada");
       return;
     }
 
