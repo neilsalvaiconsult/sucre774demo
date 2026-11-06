@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <title>Portal Edificio Sucre 774</title>
+  <!-- Librería html2canvas para la generación del recibo visual -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-body: #f4f6f9;
+      --bg-container: #ffffff;
+      --text-color: #333333;
+      --heading-color: #1a365d;
+      --label-color: #4a5568;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-text: #333333;
+      --btn-bg: #3182ce;
+      --btn-hover: #2b6cb0;
+      --card-bg: #ebf8ff;
+      --card-border: #3182ce;
+      --card-title: #2c5282;
+      --card-value: #1a365d;
+      --table-th-bg: #edf2f7;
+      --table-th-color: #4a5568;
+      --table-td-border: #e2e8f0;
+      --toggle-btn-bg: #4a5568;
+      --toggle-btn-hover: #2d3748;
+      --footer-color: #718096;
+      --shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg-body: #1a202c;
+      --bg-container: #2d3748;
+      --text-color: #e2e8f0;
+      --heading-color: #90cdf4;
+      --label-color: #cbd5e1;
+      --input-bg: #4a5568;
+      --input-border: #718096;
+      --input-text: #ffffff;
+      --btn-bg: #3182ce;
+      --btn-hover: #4299e1;
+      --card-bg: #1a365d;
+      --card-border: #63b3ed;
+      --card-title: #90cdf4;
+      --card-value: #ffffff;
+      --table-th-bg: #4a5568;
+      --table-th-color: #e2e8f0;
+      --table-td-border: #4a5568;
+      --toggle-btn-bg: #718096;
+      --toggle-btn-hover: #a0aec0;
+      --footer-color: #a0aec0;
+      --shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    html { -webkit-text-size-adjust: 100%; width: 100%; }
+    *, *::before, *::after { box-sizing: border-box; }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    th, td { word-break: normal; }
+    #tablaEgresos th:nth-child(-n+3),
+    #tablaEgresos td:nth-child(-n+3),
+    #tablaPagos th,
+    #tablaPagos td { white-space: nowrap; }
+    #tablaEgresos th:nth-child(4),
+    #tablaEgresos td:nth-child(4) { white-space: normal; overflow-wrap: break-word; }
+
+    body {
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-color);
+      margin: 0;
+      padding: 5px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-container);
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 0; }
+      h2 { font-size: 20px; }
+      select { font-size: 16px; }
+      .card-value { font-size: 22px; }
+      .info-row { font-size: 15px; gap: 8px; }
+      table { font-size: 13px; }
+      th, td { padding: 6px 4px; }
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 18px 12px;
+      }
+    }
+
+    .theme-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      width: auto;
+    }
+    .theme-toggle-btn:hover { transform: scale(1.5); }
+
+    h2 { color: var(--heading-color); text-align: center; margin-top: 0; padding-right: 35px; font-size: 22px; }
+    label { font-weight: bold; display: block; margin-bottom: 8px; color: var(--label-color); font-size: 16px; }
+
+    select, input.campo { width: 100%; padding: 14px; border: 1px solid var(--input-border); background-color: var(--input-bg); color: var(--input-text); border-radius: 8px; font-size: 18px; margin-bottom: 15px; box-sizing: border-box; }
+
+    button.main-btn { width: 100%; background-color: var(--btn-bg); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
+    button.main-btn:hover { background-color: var(--btn-hover); }
+    button.main-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    #loginBox { display: block; }
+    #appBox { display: none; }
+    .login-error { display: none; background: #fff5f5; border: 1px solid #e53e3e; color: #c53030; padding: 10px 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; line-height: 1.4; }
+    [data-theme="dark"] .login-error { background: #3b2020; color: #fc8181; }
+    .login-help { font-size: 13px; color: var(--footer-color); text-align: center; margin-top: 6px; }
+    .session-bar { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--footer-color); margin-bottom: 12px; gap: 8px; }
+    .session-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-logout { background: transparent; border: 1px solid var(--input-border); color: var(--label-color); padding: 5px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .btn-logout:hover { background: var(--table-th-bg); }
+
+    .admin-panel { display: none; margin-top: 15px; padding: 12px; background: rgba(49, 130, 206, 0.08); border: 1px dashed var(--btn-bg); border-radius: 8px; }
+    .admin-panel-title { font-size: 13px; font-weight: bold; color: var(--btn-bg); text-transform: uppercase; margin-bottom: 8px; text-align: center; }
+    .admin-btn-group { display: flex; gap: 10px; }
+    .btn-admin-ingreso { flex: 1; background-color: #38a169; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn-admin-ingreso:hover { background-color: #2f855a; }
+    .btn-admin-egreso { flex: 1; background-color: #e53e3e; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn-admin-egreso:hover { background-color: #c53030; }
+
+    /* Modales */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); z-index: 1000; overflow-y: auto; padding: 15px; align-items: flex-start; justify-content: center; }
+    .modal-box { background: var(--bg-container); color: var(--text-color); width: 100%; max-width: 440px; margin: 20px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); }
+    .modal-box h3 { margin: 0 0 14px 0; color: var(--heading-color); font-size: 19px; }
+    .modal-box label { font-size: 14px; margin-bottom: 5px; }
+    .modal-box select, .modal-box input.campo { padding: 11px; font-size: 16px; margin-bottom: 12px; }
+    .fila-doble { display: flex; gap: 8px; margin-bottom: 12px; }
+    .fila-doble select, .fila-doble input.campo { margin-bottom: 0; flex: 1; min-width: 0; }
+    .modal-msg { display: none; padding: 9px 11px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; line-height: 1.4; }
+    .modal-msg.error { display: block; background: #fff5f5; border: 1px solid #e53e3e; color: #c53030; }
+    .modal-msg.ok { display: block; background: #f0fff4; border: 1px solid #38a169; color: #276749; }
+    [data-theme="dark"] .modal-msg.error { background: #3b2020; color: #fc8181; }
+    [data-theme="dark"] .modal-msg.ok { background: #1c3829; color: #68d391; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-cancel { background: var(--table-th-bg); color: var(--text-color); }
+    .btn-save { background: var(--btn-bg); color: #fff; }
+    .btn-save:hover { background: var(--btn-hover); }
+    .modal-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ESTILOS PARA LA TARJETA DEL RECIBO (Similitud con la imagen adjunta) */
+    .recibo-preview-container {
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .recibo-card {
+      width: 100%;
+      max-width: 400px;
+      background: #f8f9fa;
+      border: 2px solid #2d3748;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #1a202c;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .recibo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #2d3748;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .recibo-fecha {
+      font-style: italic;
+      font-size: 13px;
+      color: #2d3748;
+    }
+    .recibo-titulo-box {
+      border: 2px solid #2d3748;
+      padding: 4px 12px;
+      font-weight: bold;
+      font-size: 16px;
+      letter-spacing: 1px;
+      background: #fff;
+    }
+    .recibo-body-row {
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .recibo-tabla {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      background: #fff;
+      font-size: 13px;
+    }
+    .recibo-tabla th, .recibo-tabla td {
+      border: 1px solid #2d3748;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .recibo-tabla th {
+      background: #edf2f7;
+      font-weight: bold;
+    }
+    .recibo-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 15px;
+      font-size: 12px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 10px;
+    }
+    .recibo-firma {
+      font-style: italic;
+    }
+    .recibo-marca {
+      font-size: 13px;
+      color: #a0aec0;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .btn-whatsapp {
+      background-color: #25d366;
+      color: white;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-whatsapp:hover { background-color: #20ba5a; }
+
+    .result-box { display: none; margin-top: 20px; }
+    .card { background-color: var(--card-bg); border-left: 6px solid var(--card-border); padding: 16px; border-radius: 6px; margin-bottom: 15px; }
+    .card-title { font-size: 14px; color: var(--card-title); text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
+    .card-value { font-size: 24px; font-weight: bold; color: var(--card-value); }
+    .card-subtitle { font-size: 13px; color: var(--footer-color); margin-top: 6px; font-style: italic; }
+
+    .danger { border-left-color: #e53e3e; }
+    [data-theme="dark"] .danger { background-color: #3b2020; }
+    [data-theme="light"] .danger { background-color: #fff5f5; }
+    .danger .card-title { color: #e53e3e; }
+    .danger .card-value { color: #fc8181; }
+
+    .success { border-left-color: #38a169; }
+    [data-theme="dark"] .success { background-color: #1c3829; }
+    [data-theme="light"] .success { background-color: #f0fff4; }
+    .success .card-title { color: #38a169; }
+    .success .card-value { color: #68d391; }
+
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--table-td-border); font-size: 16px; }
+
+    .toggle-btn {
+      width: 100%;
+      background-color: var(--toggle-btn-bg);
+      color: white;
+      padding: 12px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 15px 0 6px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .toggle-btn:hover { background-color: var(--toggle-btn-hover); }
+
+    .collapsible-content { display: none; margin-bottom: 15px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 5px; }
+    th { background-color: var(--table-th-bg); text-align: left; padding: 8px; color: var(--table-th-color); }
+    td { padding: 8px; border-bottom: 1px solid var(--table-td-border); color: var(--text-color); }
+
+    .filtro-egresos { display: flex; align-items: center; gap: 8px; margin: 8px 0 10px 0; }
+    .filtro-egresos label { margin: 0; font-size: 14px; white-space: nowrap; }
+    .filtro-egresos select { margin: 0; padding: 8px; font-size: 15px; flex: 1; min-width: 0; }
+    .total-filtro { font-size: 13px; color: var(--footer-color); text-align: right; margin-top: 8px; font-weight: bold; }
+    .loader { display: none; text-align: center; margin: 20px 0; font-style: italic; font-size: 16px; color: var(--footer-color); }
+
+    .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--table-td-border); text-align: center; font-size: 13px; color: var(--footer-color); line-height: 1.6; }
+    .footer a { color: var(--btn-bg); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn" title="Cambiar modo oscuro/claro">🌙</button>
+
+  <h2>🏢 Mi Edificio Sucre 774</h2>
+
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <div id="loginError" class="login-error"></div>
+    <label for="inputCorreo">Correo electrónico:</label>
+    <input type="email" id="inputCorreo" class="campo" placeholder="tucorreo@ejemplo.com" autocomplete="email" autocapitalize="none">
+    <label for="inputPin">PIN de acceso:</label>
+    <input type="password" id="inputPin" class="campo" placeholder="Tu PIN personal" autocomplete="off" inputmode="numeric">
+    <button class="main-btn" id="btnIngresar" onclick="iniciarSesion()">Ingresar</button>
+    <div class="login-help">¿No tienes PIN o lo olvidaste? Solicítalo a la administración.</div>
+  </div>
+
+  <!-- APLICACIÓN -->
+  <div id="appBox">
+    <div class="session-bar">
+      <span id="lblSesion"></span>
+      <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <label for="deptoSelect">Selecciona tu Departamento:</label>
+    <select id="deptoSelect">
+      <option value="">-- Elige una opción --</option>
+      <option value="D101">D101</option>
+      <option value="D102">D102</option>
+      <option value="D201">D201</option>
+      <option value="D202">D202</option>
+      <option value="D301">D301</option>
+      <option value="D302">D302</option>
+      <option value="D401">D401</option>
+      <option value="D402">D402</option>
+      <option value="D501">D501</option>
+      <option value="D502">D502</option>
+    </select>
+
+    <button class="main-btn" onclick="consultarDepto()">Consultar Estado</button>
+
+    <div id="adminPanel" class="admin-panel">
+      <div class="admin-panel-title">⚙️ Panel de Administración</div>
+      <div class="admin-btn-group">
+        <button class="btn-admin-ingreso" onclick="registrarIngresoModal()">+ Registrar Ingreso</button>
+        <button class="btn-admin-egreso" onclick="registrarEgresoModal()">- Registrar Egreso</button>
+      </div>
+    </div>
+
+    <div id="loader" class="loader">Consultando base de datos...</div>
+
+    <div id="resultBox" class="result-box">
+      <div class="info-row"><strong>Propietario:</strong> <span id="lblPropietario"></span></div>
+      <div class="info-row" style="margin-bottom: 15px;"><strong>Cuota Mensual:</strong> S/. <span id="lblCuota"></span></div>
+
+      <div id="cardDeuda" class="card danger">
+        <div class="card-title">Deuda Pendiente al día de hoy</div>
+        <div class="card-value">S/. <span id="valDeuda">0.00</span></div>
+        <div id="subDeuda" class="card-subtitle"></div>
+      </div>
+
+      <div class="card success">
+        <div class="card-title">Total Aportado en el Año</div>
+        <div class="card-value">S/. <span id="valPagado">0.00</span></div>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid var(--table-td-border); margin: 15px 0;">
+
+      <div class="card" style="background-color: var(--card-bg); border-left-color: var(--footer-color);">
+        <div class="card-title" style="color: var(--label-color);">Fondo disponible del Edificio</div>
+        <div class="card-value" style="color: var(--text-color);">S/. <span id="valCajaGlobal">0.00</span></div>
+      </div>
+
+      <div id="cardDeudaEdificio" class="card danger">
+        <div class="card-title">Deuda Total Acumulada del Edificio</div>
+        <div class="card-value">S/. <span id="valDeudaEdificio">0.00</span></div>
+        <div id="subDeudaEdificio" class="card-subtitle"></div>
+      </div>
+
+      <button class="toggle-btn" onclick="toggleSeccion('seccionPagos', 'iconPagos')">
+        <span>📋 Últimos Pagos del Departamento</span>
+        <span id="iconPagos">▼</span>
+      </button>
+      <div id="seccionPagos" class="collapsible-content">
+        <div class="table-wrap"><table id="tablaPagos">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Mes</th>
+              <th>Monto</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTablaPagos"></tbody>
+        </table></div>
+      </div>
+
+      <button class="toggle-btn" onclick="toggleSeccion('seccionEgresos', 'iconEgresos')">
+        <span>📉 Últimos Egresos del Edificio</span>
+        <span id="iconEgresos">▼</span>
+      </button>
+      <div id="seccionEgresos" class="collapsible-content">
+        <div class="filtro-egresos">
+          <label for="filtroTipoEgreso">Filtrar por Tipo:</label>
+          <select id="filtroTipoEgreso" onchange="renderEgresos()">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="table-wrap"><table id="tablaEgresos">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Monto</th>
+              <th>Desc.</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTablaEgresos"></tbody>
+        </table></div>
+        <div id="totalEgresosFiltro" class="total-filtro"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR INGRESO CON RECIBO -->
+  <div id="modalIngreso" class="modal-overlay">
+    <div class="modal-box">
+      <h3>+ Registrar Ingreso</h3>
+      <div id="msgIngreso" class="modal-msg"></div>
+
+      <label for="ingDepto">Departamento:</label>
+      <select id="ingDepto"></select>
+
+      <label for="ingFecha">Fecha de pago:</label>
+      <input type="date" id="ingFecha" class="campo">
+
+      <label for="ingMes">Mes que cancela / Año:</label>
+      <div class="fila-doble">
+        <select id="ingMes"></select>
+        <input type="number" id="ingAnio" class="campo" min="2020" max="2100" step="1" inputmode="numeric">
+      </div>
+
+      <label for="ingMonto">Monto (S/.):</label>
+      <input type="number" id="ingMonto" class="campo" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModal('modalIngreso')">Cerrar</button>
+        <button class="btn-save" id="btnGuardarIngreso" onclick="guardarIngreso(false)">Registrar Pago</button>
+      </div>
+
+      <!-- VISTA PREVIA DEL RECIBO GENERADO -->
+      <div id="contenedorReciboArea" style="display:none; margin-top: 20px;">
+        <hr style="border: none; border-top: 1px dashed var(--table-td-border); margin: 15px 0;">
+        <label style="text-align:center; margin-bottom: 8px;">🎫 Recibo Generado:</label>
+        
+        <div class="recibo-preview-container">
+          <div id="reciboPrintNode" class="recibo-card">
+            <div class="recibo-header">
+              <span id="recFmtFecha" class="recibo-fecha">Magdalena del Mar, 09 de abril del 2026</span>
+              <div class="recibo-titulo-box">RECIBO</div>
+            </div>
+            <div class="recibo-body-row">
+              <span>Hemos recibido de: &nbsp;<strong><span id="recFmtPropietario">Propietario</span></strong></span>
+              <span>Dpto. Nro.: &nbsp;<strong><span id="recFmtDepto">402</span></strong></span>
+            </div>
+            <div style="font-size: 13px; margin-bottom: 5px;">Las siguientes cuotas por concepto de mantenimiento de áreas comunes:</div>
+            <table class="recibo-tabla">
+              <thead>
+                <tr>
+                  <th>Mes-Año</th>
+                  <th>Monto (S/.)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span id="recFmtMes">oct-2026</span></td>
+                  <td><span id="recFmtMonto">100.00</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th style="text-align:right;">Total (S/.)</th>
+                  <th><span id="recFmtTotal">100.00</span></th>
+                </tr>
+              </tfoot>
+            </table>
+            <div class="recibo-footer">
+              <div class="recibo-firma">Atentamente,<br><strong>Administración Edificio Sucre 774</strong></div>
+              <div class="recibo-marca">Edificio Sucre 774</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-whatsapp" onclick="copiarReciboAlPortapapeles()">
+          📋 Copiar Recibo para WhatsApp
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR EGRESO -->
+  <div id="modalEgreso" class="modal-overlay">
+    <div class="modal-box">
+      <h3>- Registrar Egreso</h3>
+      <div id="msgEgreso" class="modal-msg"></div>
+
+      <label for="egrFecha">Fecha del gasto:</label>
+      <input type="date" id="egrFecha" class="campo">
+
+      <label for="egrTipo">Tipo de egreso:</label>
+      <input type="text" id="egrTipo" class="campo" list="listaTiposEgreso" maxlength="60" placeholder="Elige o escribe uno nuevo" autocomplete="off">
+      <datalist id="listaTiposEgreso"></datalist>
+
+      <label for="egrMonto">Monto (S/.):</label>
+      <input type="number" id="egrMonto" class="campo" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+
+      <label for="egrDesc">Descripción:</label>
+      <input type="text" id="egrDesc" class="campo" maxlength="200" placeholder="Detalle del gasto (opcional)" autocomplete="off">
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="cerrarModal('modalEgreso')">Cerrar</button>
+        <button class="btn-save" id="btnGuardarEgreso" onclick="guardarEgreso()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div>Contacto: <a href="mailto:neilsalva.iconsult@gmail.com">neilsalva.iconsult@gmail.com</a></div>
+    <div>WhatsApp: <a href="https://wa.me/51998781460" target="_blank">998 781 460</a></div>
+    <div>Copyright &copy; 2026 - NAiconsult - Lima - Perú</div>
+  </footer>
+</div>
+
+<script>
+  var tokenSesion = "";
+  var egresosData = [];
+
+  function toggleTheme() {
+    var htmlElement = document.documentElement;
+    var themeBtn = document.getElementById("themeBtn");
+    if (htmlElement.getAttribute("data-theme") === "dark") {
+      htmlElement.setAttribute("data-theme", "light");
+      themeBtn.innerText = "🌙";
+      try { localStorage.setItem("theme", "light"); } catch(e) {}
+    } else {
+      htmlElement.setAttribute("data-theme", "dark");
+      themeBtn.innerText = "☀️";
+      try { localStorage.setItem("theme", "dark"); } catch(e) {}
+    }
+  }
+
+  (function() {
+    var savedTheme = "light";
+    try { savedTheme = localStorage.getItem("theme") || "light"; } catch(e) {}
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.getElementById("themeBtn").innerText = savedTheme === "dark" ? "☀️" : "🌙";
+  })();
+
+  function guardarSesion(token, correo) {
+    try { sessionStorage.setItem("sucre_token", token); sessionStorage.setItem("sucre_correo", correo); } catch(e) {}
+  }
+  function leerSesion() {
+    try { return { token: sessionStorage.getItem("sucre_token") || "", correo: sessionStorage.getItem("sucre_correo") || "" }; }
+    catch(e) { return { token: "", correo: "" }; }
+  }
+  function borrarSesionLocal() {
+    try { sessionStorage.removeItem("sucre_token"); sessionStorage.removeItem("sucre_correo"); } catch(e) {}
+  }
+
+  function mostrarLoginError(msg) {
+    var box = document.getElementById("loginError");
+    box.innerText = msg;
+    box.style.display = msg ? "block" : "none";
+  }
+
+  function mostrarApp(token, esAdmin, correo) {
+    tokenSesion = token;
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("appBox").style.display = "block";
+    document.getElementById("lblSesion").innerText = "Sesión: " + correo;
+    document.getElementById("adminPanel").style.display = esAdmin ? "block" : "none";
+  }
+
+  function mostrarLogin(mensaje) {
+    tokenSesion = "";
+    borrarSesionLocal();
+    document.getElementById("appBox").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("inputPin").value = "";
+    mostrarLoginError(mensaje || "");
+  }
+
+  function iniciarSesion() {
+    var correo = document.getElementById("inputCorreo").value.trim();
+    var pin = document.getElementById("inputPin").value.trim();
+    var btn = document.getElementById("btnIngresar");
+
+    if (!correo || !pin) {
+      mostrarLoginError("Ingresa tu correo y tu PIN.");
+      return;
+    }
+
+    mostrarLoginError("");
+    btn.disabled = true;
+    btn.innerText = "Verificando...";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerText = "Ingresar";
+        if (!res || !res.ok) {
+          mostrarLoginError((res && res.error) || "No se pudo iniciar sesión.");
+          document.getElementById("inputPin").value = "";
+          return;
+        }
+        guardarSesion(res.token, res.email);
+        document.getElementById("inputPin").value = "";
+        mostrarApp(res.token, res.esAdmin, res.email);
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerText = "Ingresar";
+        mostrarLoginError("Error al conectar con el servidor: " + err);
+      })
+      .iniciarSesion(correo, pin);
+  }
+
+  function cerrarSesion() {
+    var t = tokenSesion;
+    mostrarLogin("");
+    if (t) google.script.run.cerrarSesion(t);
+  }
+
+  document.getElementById("inputPin").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") iniciarSesion();
+  });
+  document.getElementById("inputCorreo").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") document.getElementById("inputPin").focus();
+  });
+
+  (function() {
+    var s = leerSesion();
+    if (!s.token) return;
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res && res.ok) {
+          mostrarApp(s.token, res.esAdmin, res.email);
+        } else {
+          borrarSesionLocal();
+        }
+      })
+      .withFailureHandler(function() { borrarSesionLocal(); })
+      .verificarSesion(s.token);
+  })();
+
+  var NOMBRES_MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+  function hoyISO() {
+    var d = new Date();
+    var mm = ("0" + (d.getMonth() + 1)).slice(-2);
+    var dd = ("0" + d.getDate()).slice(-2);
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  function mostrarMsgModal(idMsg, tipo, texto) {
+    var box = document.getElementById(idMsg);
+    box.className = "modal-msg" + (texto ? " " + tipo : "");
+    box.innerText = texto || "";
+  }
+
+  function abrirModal(id) { document.getElementById(id).style.display = "flex"; }
+  function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
+
+  function refrescarConsultaSiHayDepto() {
+    if (document.getElementById("deptoSelect").value) consultarDepto();
+  }
+
+  function sesionExpiradaEnModal(res, idModal) {
+    if (res && res.sesionExpirada) {
+      cerrarModal(idModal);
+      mostrarLogin(res.error);
+      return true;
+    }
+    return false;
+  }
+
+  // --- REGISTRAR INGRESO Y RECIBO VISUAL ---
+  function registrarIngresoModal() {
+    var selDepto = document.getElementById("ingDepto");
+    selDepto.innerHTML = "";
+    var origen = document.getElementById("deptoSelect").options;
+    for (var i = 0; i < origen.length; i++) {
+      if (!origen[i].value) continue;
+      var opt = document.createElement("option");
+      opt.value = origen[i].value;
+      opt.textContent = origen[i].text;
+      selDepto.appendChild(opt);
+    }
+    if (document.getElementById("deptoSelect").value) selDepto.value = document.getElementById("deptoSelect").value;
+
+    var selMes = document.getElementById("ingMes");
+    selMes.innerHTML = "";
+    var hoy = new Date();
+    NOMBRES_MESES.forEach(function(nombre, idx) {
+      var o = document.createElement("option");
+      o.value = String(idx + 1);
+      o.textContent = nombre;
+      selMes.appendChild(o);
+    });
+    selMes.value = String(hoy.getMonth() + 1);
+
+    document.getElementById("ingAnio").value = hoy.getFullYear();
+    document.getElementById("ingFecha").value = hoyISO();
+    document.getElementById("ingMonto").value = "";
+    document.getElementById("contenedorReciboArea").style.display = "none";
+    mostrarMsgModal("msgIngreso", "", "");
+    abrirModal("modalIngreso");
+  }
+
+  function guardarIngreso(confirmar) {
+    var datos = {
+      depto: document.getElementById("ingDepto").value,
+      fecha: document.getElementById("ingFecha").value,
+      mes: document.getElementById("ingMes").value,
+      anio: document.getElementById("ingAnio").value,
+      monto: document.getElementById("ingMonto").value,
+      confirmar: confirmar === true
+    };
+    var btn = document.getElementById("btnGuardarIngreso");
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+    mostrarMsgModal("msgIngreso", "", "");
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerText = "Registrar Pago";
+        if (sesionExpiradaEnModal(res, "modalIngreso")) return;
+
+        if (res.ok) {
+          mostrarMsgModal("msgIngreso", "ok", res.mensaje);
+          document.getElementById("ingMonto").value = "";
+          refrescarConsultaSiHayDepto();
+
+          // Mostrar tarjeta del recibo y poblar datos
+          var dRec = res.datosRecibo;
+          document.getElementById("recFmtFecha").innerText = "Magdalena del Mar, " + dRec.fecha;
+          document.getElementById("recFmtPropietario").innerText = dRec.propietario;
+          document.getElementById("recFmtDepto").innerText = dRec.depto;
+          
+          // Formatear mes corto para el recibo (ej: oct-2026)
+          var mesPartes = dRec.mes.split("-");
+          var mesAbrev = mesPartes[0].substring(0, 3) + "-" + mesPartes[1];
+          document.getElementById("recFmtMes").innerText = mesAbrev;
+          
+          var montoFmt = dRec.monto.toFixed(2);
+          document.getElementById("recFmtMonto").innerText = montoFmt;
+          document.getElementById("recFmtTotal").innerText = montoFmt;
+
+          document.getElementById("contenedorReciboArea").style.display = "block";
+        } else if (res.duplicado) {
+          if (confirm(res.error + "\n\n¿Deseas registrar este pago de todas formas?")) {
+            guardarIngreso(true);
+          }
+        } else {
+          mostrarMsgModal("msgIngreso", "error", res.error || "No se pudo registrar el ingreso.");
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerText = "Registrar Pago";
+        mostrarMsgModal("msgIngreso", "error", "Error al conectar con el servidor: " + err);
+      })
+      .registrarIngreso(tokenSesion, datos);
+  }
+
+  // Copiar recibo al portapapeles como imagen usando html2canvas
+  function copiarReciboAlPortapapeles() {
+    var reciboElemento = document.getElementById("reciboPrintNode");
+    html2canvas(reciboElemento, { scale: 2, backgroundColor: "#f8f9fa" }).then(function(canvas) {
+      canvas.toBlob(function(blob) {
+        try {
+          navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob })
+          ]).then(function() {
+            alert("¡Recibo copiado al portapapeles con éxito! Ya puedes pegarlo (Ctrl+V) en el chat de WhatsApp.");
+          }).catch(function(err) {
+            alert("No se pudo copiar automáticamente. Intenta descargarlo o usa un navegador compatible.");
+          });
+        } catch (ex) {
+          alert("Tu navegador no permite copiar la imagen directamente al portapapeles.");
+        }
+      }, "image/png");
+    });
+  }
+
+  // --- EGRESOS ---
+  function registrarEgresoModal() {
+    document.getElementById("egrFecha").value = hoyISO();
+    document.getElementById("egrTipo").value = "";
+    document.getElementById("egrMonto").value = "";
+    document.getElementById("egrDesc").value = "";
+    mostrarMsgModal("msgEgreso", "", "");
+    abrirModal("modalEgreso");
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (sesionExpiradaEnModal(res, "modalEgreso")) return;
+        var dl = document.getElementById("listaTiposEgreso");
+        dl.innerHTML = "";
+        if (res && res.ok) {
+          res.tipos.forEach(function(t) {
+            var o = document.createElement("option");
+            o.value = t;
+            dl.appendChild(o);
+          });
+        }
+      })
+      .withFailureHandler(function() {})
+      .obtenerTiposEgreso(tokenSesion);
+  }
+
+  function guardarEgreso() {
+    var datos = {
+      fecha: document.getElementById("egrFecha").value,
+      tipo: document.getElementById("egrTipo").value,
+      monto: document.getElementById("egrMonto").value,
+      descripcion: document.getElementById("egrDesc").value
+    };
+    var btn = document.getElementById("btnGuardarEgreso");
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+    mostrarMsgModal("msgEgreso", "", "");
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerText = "Guardar";
+        if (sesionExpiradaEnModal(res, "modalEgreso")) return;
+
+        if (res.ok) {
+          mostrarMsgModal("msgEgreso", "ok", res.mensaje);
+          document.getElementById("egrMonto").value = "";
+          document.getElementById("egrDesc").value = "";
+          refrescarConsultaSiHayDepto();
+        } else {
+          mostrarMsgModal("msgEgreso", "error", res.error || "No se pudo registrar el egreso.");
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerText = "Guardar";
+        mostrarMsgModal("msgEgreso", "error", "Error al conectar con el servidor: " + err);
+      })
+      .registrarEgreso(tokenSesion, datos);
+  }
+
+  function consultarDepto() {
+    var depto = document.getElementById("deptoSelect").value;
+    if (!depto) {
+      alert("Por favor, selecciona un departamento.");
+      return;
+    }
+
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("resultBox").style.display = "none";
+
+    google.script.run
+      .withSuccessHandler(mostrarResultados)
+      .withFailureHandler(mostrarError)
+      .obtenerEstadoDepto(depto, tokenSesion);
+  }
+
+  function mostrarResultados(res) {
+    document.getElementById("loader").style.display = "none";
+
+    if (res.sesionExpirada) {
+      mostrarLogin(res.error);
+      return;
+    }
+
+    if (res.error) {
+      alert(res.error);
+      return;
+    }
+
+    document.getElementById("lblPropietario").innerText = res.propietario;
+    document.getElementById("lblCuota").innerText = res.cuotaMensual.toFixed(2);
+    document.getElementById("valDeuda").innerText = res.deudaTotal.toFixed(2);
+    document.getElementById("valPagado").innerText = res.totalPagado.toFixed(2);
+    document.getElementById("valCajaGlobal").innerText = Number(res.saldoCajaEdificio).toFixed(2);
+    document.getElementById("valDeudaEdificio").innerText = res.deudaTotalEdificio.toFixed(2);
+
+    var cardDeuda = document.getElementById("cardDeuda");
+    var subDeuda = document.getElementById("subDeuda");
+
+    if (res.deudaTotal === 0) {
+      cardDeuda.className = "card success";
+      cardDeuda.querySelector(".card-title").innerText = "🎉 ¡Estás al día!";
+      subDeuda.innerText = "";
+    } else {
+      cardDeuda.className = "card danger";
+      cardDeuda.querySelector(".card-title").innerText = "Deuda Pendiente al día de hoy";
+      if (res.mesesPendientes && res.mesesPendientes.length > 0) {
+        subDeuda.innerText = "Pendiente de pago los meses: " + res.mesesPendientes.join(", ");
+      } else {
+        subDeuda.innerText = "";
+      }
+    }
+
+    var cardDeudaEdificio = document.getElementById("cardDeudaEdificio");
+    var subDeudaEdificio = document.getElementById("subDeudaEdificio");
+    if (res.deudaTotalEdificio === 0) {
+      cardDeudaEdificio.className = "card success";
+      cardDeudaEdificio.querySelector(".card-title").innerText = "🎉 ¡Edificio sin deudas!";
+      subDeudaEdificio.innerText = "";
+    } else {
+      cardDeudaEdificio.className = "card danger";
+      cardDeudaEdificio.querySelector(".card-title").innerText = "Deuda Total Acumulada del Edificio";
+      subDeudaEdificio.innerText = "Por Propietarios con cuotas de Mantenimiento pendientes de pago";
+    }
+
+    var tbodyPagos = document.getElementById("cuerpoTablaPagos");
+    tbodyPagos.innerHTML = "";
+    if (res.listaPagos.length === 0) {
+      tbodyPagos.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No se registran pagos este año.</td></tr>";
+    } else {
+      res.listaPagos.forEach(function(pago) {
+        var fila = "<tr><td>" + pago.fecha + "</td><td>" + pago.mes + "</td><td>S/. " + pago.monto.toFixed(2) + "</td></tr>";
+        tbodyPagos.innerHTML += fila;
+      });
+    }
+
+    egresosData = res.listaEgresos || [];
+    var selTipo = document.getElementById("filtroTipoEgreso");
+    selTipo.innerHTML = "<option value=''>Todos</option>";
+    var tipos = [];
+    egresosData.forEach(function(e) {
+      if (tipos.indexOf(e.tipo) === -1) tipos.push(e.tipo);
+    });
+    tipos.sort().forEach(function(t) {
+      var opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      selTipo.appendChild(opt);
+    });
+    renderEgresos();
+
+    document.getElementById("resultBox").style.display = "block";
+  }
+
+  function renderEgresos() {
+    var filtro = document.getElementById("filtroTipoEgreso").value;
+    var tbody = document.getElementById("cuerpoTablaEgresos");
+    var totalElem = document.getElementById("totalEgresosFiltro");
+    var lista = egresosData.filter(function(e) { return !filtro || e.tipo === filtro; });
+
+    tbody.innerHTML = "";
+    if (lista.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No se registran egresos.</td></tr>";
+      totalElem.innerText = "";
+      return;
+    }
+
+    var total = 0;
+    var html = "";
+    lista.forEach(function(egreso) {
+      total += egreso.monto;
+      html += "<tr><td>" + egreso.fecha + "</td><td>" + egreso.tipo + "</td><td>S/. " + egreso.monto.toFixed(2) + "</td><td>" + egreso.descripcion + "</td></tr>";
+    });
+    tbody.innerHTML = html;
+    totalElem.innerText = (filtro ? "Total " + filtro + ": " : "Total: ") + "S/. " + total.toFixed(2);
+  }
+
+  function toggleSeccion(idContenido, idIcono) {
+    var contenido = document.getElementById(idContenido);
+    var icono = document.getElementById(idIcono);
+    if (contenido.style.display === "block") {
+      contenido.style.display = "none";
+      icono.innerText = "▼";
+    } else {
+      contenido.style.display = "block";
+      icono.innerText = "▲";
+    }
+  }
+
+  function mostrarError(err) {
+    document.getElementById("loader").style.display = "none";
+    alert("Hubo un error al conectar con el servidor: " + err);
+  }
+</script>
+</body>
+</html>
